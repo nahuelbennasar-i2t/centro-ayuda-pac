@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centro de Ayuda · Portal PAC | Lotería de Santa Fe</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --or:#F0921A;--or-bg:rgba(240,146,26,.09);--or-dk:#D4780F;
+  --white:#fff;--bg:#F7F7F7;--text:#1A1A1A;--sec:#5A5A5A;--muted:#9A9A9A;--bdr:#E0E0E0;
+  --green:#2E7D32;--gbg:#E8F5E9;--red:#C62828;--rbg:#FFEBEE;
+  --amber:#F57C00;--blue:#1565C0;--bbg:#E3F2FD;
+  --hh:64px;--font:'Barlow',sans-serif;--max:1100px;--dmax:860px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);color:var(--text);background:var(--bg);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+.top-bar{height:4px;background:var(--or);position:fixed;top:0;left:0;right:0;z-index:500;}
+.header{position:fixed;top:4px;left:0;right:0;height:var(--hh);background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);z-index:499;padding:0 32px;}
+.hdr-in{max-width:var(--max);margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.hdr-right{text-align:right;flex-shrink:0;}
+.hdr-right h1{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+.hdr-right p{font-size:12px;color:var(--muted);}
+.breadcrumb{font-size:11px;color:var(--muted);display:none;margin-top:2px;}
+.breadcrumb.show{display:block;}
+.bc-sep{color:var(--or);margin:0 4px;}
+.bc-link{cursor:pointer;transition:color .15s;}
+.bc-link:hover{color:var(--or);}
+.bc-current{color:var(--text);font-weight:600;}
+.search-bar{background:var(--white);border-bottom:1px solid var(--bdr);padding:10px 32px;position:sticky;top:calc(var(--hh) + 4px);z-index:498;}
+.search-bar-in{max-width:var(--max);margin:0 auto;position:relative;}
+.si{width:100%;height:44px;padding:0 16px 0 46px;font-family:var(--font);font-size:15px;border:1.5px solid var(--bdr);border-radius:8px;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;}
+.si:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(240,146,26,.14);background:var(--white);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.sdrop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--white);border:1px solid var(--bdr);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:9999;display:none;overflow:hidden;max-height:420px;overflow-y:auto;}
+.sdrop.open{display:block;}
+.sdrop-hdr{padding:8px 16px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--bdr);background:var(--bg);font-weight:600;}
+.sr{padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--bdr);border-left:3px solid transparent;display:flex;gap:10px;align-items:flex-start;transition:background .12s,border-left-color .12s;}
+.sr:last-child{border-bottom:none;}
+.sr:hover,.sr.active{background:var(--or-bg);border-left-color:var(--or);}
+.sr-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+.sr-body{flex:1;min-width:0;}
+.sr-top{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.sr-id{font-family:monospace;font-size:10px;font-weight:700;color:var(--or);background:var(--or-bg);padding:2px 6px;border-radius:3px;}
+.sr-sname{font-size:11px;color:var(--muted);}
+.sr-tema{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.sr-res{font-size:12px;color:var(--sec);line-height:1.4;}
+.sr-empty{padding:24px 16px;text-align:center;}
+.sr-empty-ico{font-size:32px;margin-bottom:8px;}
+.sr-empty-txt{font-size:14px;font-weight:600;color:var(--sec);margin-bottom:8px;}
+.sr-sugg{display:inline-block;cursor:pointer;color:var(--or);font-weight:600;text-decoration:underline;margin:2px 3px;font-size:13px;}
+.sr-more{padding:8px 16px;font-size:11px;color:var(--muted);text-align:center;background:var(--bg);border-top:1px solid var(--bdr);}
+mark{background:#FFF3CD;color:var(--text);border-radius:2px;padding:0 2px;font-weight:700;font-style:normal;}
+.main{padding-top:calc(var(--hh) + 4px + 64px);min-height:100vh;}
+.view{display:none;}
+.view.active{display:block;animation:fadeSlide .22s ease-out;}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+.back-btn{display:none;align-items:center;gap:6px;padding:12px 32px 4px;max-width:var(--dmax);margin:0 auto;cursor:pointer;color:var(--or);font-size:13px;font-weight:600;background:none;border:none;font-family:var(--font);}
+.back-btn:hover{text-decoration:underline;opacity:.8;}
+.back-btn.show{display:flex;}
+.home-wrap{max-width:var(--max);margin:0 auto;padding:32px 32px 64px;}
+.home-hero{text-align:center;margin-bottom:40px;}
+.home-hero h2{font-size:clamp(22px,3vw,30px);font-weight:800;text-transform:uppercase;color:var(--or);margin-bottom:8px;}
+.home-hero p{font-size:16px;color:var(--sec);}
+.sec-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;}
+.cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.sec-card{background:var(--white);border:1px solid var(--bdr);border-radius:12px;padding:28px;cursor:pointer;position:relative;overflow:hidden;transition:transform .25s cubic-bezier(.4,0,.2,1),box-shadow .25s,border-color .25s;}
+.sec-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--or);border-radius:12px 12px 0 0;transform:scaleX(0);transform-origin:left;transition:transform .25s ease;}
+.sec-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.1);border-color:transparent;}
+.sec-card:hover::before{transform:scaleX(1);}
+.sec-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.sec-card-icon{width:48px;height:48px;border-radius:12px;background:var(--or-bg);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.sec-card-count{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--bg);padding:4px 10px;border-radius:20px;}
+.sec-card h3{font-size:18px;font-weight:800;margin-bottom:6px;}
+.sec-card p{font-size:14px;color:var(--sec);line-height:1.5;}
+.sec-card-arrow{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;font-weight:700;color:var(--or);transition:gap .2s;}
+.sec-card:hover .sec-card-arrow{gap:10px;}
+.section-wrap{max-width:var(--dmax);margin:0 auto;padding:16px 32px 64px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--bdr);}
+.sec-hdr-left{display:flex;align-items:center;gap:12px;}
+.sec-icon-lg{width:44px;height:44px;border-radius:12px;background:var(--or-bg);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.sec-title{font-size:clamp(18px,2.5vw,22px);font-weight:800;}
+.sec-desc{font-size:13px;color:var(--muted);margin-top:2px;}
+.prog-ind{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;}
+.tarjetas-list{display:flex;flex-direction:column;}
+.tarjeta-item{background:var(--white);border:1px solid var(--bdr);border-left:3px solid transparent;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .15s,border-left-color .15s;}
+.tarjeta-item:not(:last-child){border-bottom:none;}
+.tarjeta-item:first-child{border-radius:8px 8px 0 0;}
+.tarjeta-item:last-child{border-radius:0 0 8px 8px;}
+.tarjeta-item:only-child{border-radius:8px;}
+.tarjeta-item:hover{background:#FFF9F4;border-left-color:var(--or);}
+.tarjeta-id{font-family:monospace;font-size:11px;font-weight:700;color:var(--or);background:var(--or-bg);padding:3px 8px;border-radius:4px;flex-shrink:0;min-width:44px;text-align:center;}
+.tarjeta-info{flex:1;min-width:0;}
+.tarjeta-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.tarjeta-hint{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tarjeta-dots{display:flex;gap:4px;flex-shrink:0;}
+.dot{width:8px;height:8px;border-radius:50%;}
+.dot-steps{background:var(--or);}
+.dot-errors{background:var(--red);}
+.t-chev{color:var(--muted);font-size:18px;flex-shrink:0;}
+.detail-wrap{max-width:var(--dmax);margin:0 auto;padding:16px 32px 80px;}
+.detail-card{background:var(--white);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:20px;}
+.detail-head{padding:28px 28px 20px;}
+.detail-id{font-family:monospace;font-size:12px;font-weight:700;color:var(--or);background:var(--or-bg);display:inline-block;padding:3px 10px;border-radius:4px;margin-bottom:10px;}
+.detail-title{font-size:clamp(20px,3vw,26px);font-weight:800;line-height:1.2;margin-bottom:6px;}
+.detail-spath{font-size:12px;color:var(--muted);}
+.detail-div{width:48px;height:3px;background:var(--or);border-radius:2px;margin:16px 28px;}
+.detail-body{padding:0 28px 24px;font-size:15px;line-height:1.7;color:var(--sec);}
+.detail-body p{margin-bottom:10px;}
+.detail-body ul{margin:8px 0 10px;list-style:none;}
+.detail-body ul li{padding:3px 0 3px 18px;position:relative;font-size:14px;}
+.detail-body ul li::before{content:'—';color:var(--or);font-weight:700;position:absolute;left:0;}
+.alert-blk{display:flex;gap:10px;padding:14px 18px;margin:0 28px 14px;border-radius:0 8px 8px 0;border-left:4px solid;}
+.alert-blk.warn{background:var(--rbg);border-color:var(--red);}
+.alert-blk.tip{background:var(--or-bg);border-color:var(--or);}
+.alert-blk.info{background:var(--bbg);border-color:var(--blue);}
+.alert-blk.ok{background:var(--gbg);border-color:var(--green);}
+.alert-ico{font-size:16px;flex-shrink:0;margin-top:1px;}
+.alert-lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;}
+.warn .alert-lbl{color:var(--red);}
+.tip .alert-lbl{color:var(--or-dk);}
+.info .alert-lbl{color:var(--blue);}
+.ok .alert-lbl{color:var(--green);}
+.alert-txt{font-size:14px;line-height:1.55;color:var(--text);}
+.steps-sec{padding:0 28px 20px;}
+.steps-ttl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--or);margin-bottom:14px;}
+.step-row{display:flex;gap:14px;margin-bottom:4px;position:relative;}
+.step-num{width:30px;height:30px;border-radius:50%;background:var(--or);color:var(--white);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1;}
+.step-row:not(:last-child) .step-num::after{content:'';position:absolute;top:34px;left:50%;transform:translateX(-50%);width:2px;background:var(--bdr);height:calc(100% + 14px);}
+.step-body{padding:4px 0 20px;font-size:14px;line-height:1.6;color:var(--sec);flex:1;}
+.errors-sec{padding:0 28px 20px;}
+.errors-ttl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:14px;}
+.err-table{width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid var(--bdr);}
+.err-table th{background:var(--text);color:var(--white);padding:10px 14px;text-align:left;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.err-table td{padding:10px 14px;border-bottom:1px solid var(--bdr);font-size:14px;color:var(--sec);vertical-align:top;}
+.err-table tr:nth-child(even) td{background:var(--bg);}
+.err-table tr:last-child td{border-bottom:none;}
+.detail-meta{background:var(--bg);border-top:1px solid var(--bdr);padding:16px 28px;display:flex;flex-direction:column;gap:8px;}
+.meta-row{display:flex;gap:10px;align-items:flex-start;}
+.meta-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:72px;flex-shrink:0;}
+.meta-val{font-size:13px;color:var(--sec);font-family:monospace;word-break:break-word;line-height:1.5;}
+.meta-val a{color:var(--or);text-decoration:none;}
+.meta-val a:hover{text-decoration:underline;}
+.detail-nav{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;}
+.dnav-btn{background:var(--white);border:1.5px solid var(--bdr);border-radius:8px;padding:14px 18px;cursor:pointer;transition:border-color .2s,background .2s;font-family:var(--font);text-align:left;}
+.dnav-btn.next{text-align:right;}
+.dnav-btn:hover:not(.disabled){border-color:var(--or);background:var(--or-bg);}
+.dnav-btn.disabled{opacity:.3;pointer-events:none;}
+.dnav-dir{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;}
+.dnav-title{font-size:13px;font-weight:700;color:var(--text);}
+.faq-zone{background:var(--bg);padding:64px 32px 72px;margin-top:64px;}
+.faq-in{max-width:var(--max);margin:0 auto;}
+.faq-badge{display:inline-block;background:var(--or);color:var(--white);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 14px;border-radius:4px;margin-bottom:14px;}
+.faq-zone h2{font-size:22px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-bottom:8px;}
+.faq-sub{font-size:15px;color:var(--sec);margin-bottom:40px;}
+.faq-group{margin-bottom:32px;}
+.faq-glabel{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bdr);}
+.faq-grid{columns:2;column-gap:10px;}
+.faq-item{break-inside:avoid;margin-bottom:10px;background:var(--white);border:1px solid var(--bdr);border-radius:8px;overflow:hidden;transition:border-color .2s;}
+.faq-item:hover{border-color:#C0C0C0;}
+.faq-item.open{border-color:var(--or);}
+.faq-q{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;user-select:none;}
+.faq-qt{font-size:14px;font-weight:700;line-height:1.4;}
+.faq-tog{width:26px;height:26px;border-radius:50%;background:var(--or-bg);color:var(--or);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:background .2s,transform .3s;}
+.faq-item.open .faq-tog{background:var(--or);color:var(--white);transform:rotate(45deg);}
+.faq-item.open .faq-q{background:rgba(240,146,26,.04);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.faq-ai{padding:0 18px 16px;font-size:14px;color:var(--sec);line-height:1.65;border-top:1px solid var(--bdr);}
+.faq-ai p{padding-top:12px;}
+.bdg{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:10px;}
+.bdg-atc{background:var(--rbg);color:var(--red);}
+.bdg-self{background:var(--gbg);color:var(--green);}
+.footer{background:var(--text);color:rgba(255,255,255,.55);padding:48px 32px 32px;border-top:4px solid var(--or);}
+.ft-in{max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+.ft-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ft-logo-bar{width:5px;height:28px;background:var(--or);border-radius:2px;}
+.ft-logo-tx{color:rgba(255,255,255,.9);font-size:15px;font-weight:800;}
+.footer p{font-size:13px;line-height:1.6;}
+.footer h4{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:14px;}
+.ft-links{list-style:none;}
+.ft-links li{margin-bottom:10px;}
+.ft-links a{color:rgba(255,255,255,.65);font-size:13px;text-decoration:none;transition:color .2s;}
+.ft-links a:hover{color:var(--or);}
+.ft-bot{max-width:var(--max);margin:28px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+@media(max-width:640px){
+  .header,.search-bar{padding:0 16px;}
+  .search-bar{padding:10px 16px;}
+  .home-wrap,.section-wrap,.detail-wrap{padding-left:16px;padding-right:16px;}
+  .cards-grid{grid-template-columns:1fr;}
+  .faq-zone{padding:48px 16px;}
+  .faq-grid{columns:1;}
+  .footer{padding:36px 16px 24px;}
+  .ft-in{grid-template-columns:1fr;}
+  .detail-nav{grid-template-columns:1fr;}
+  .back-btn{padding-left:16px;}
+  .section-header{flex-direction:column;align-items:flex-start;gap:8px;}
+  .detail-head,.detail-body,.steps-sec,.errors-sec,.detail-meta,.alert-blk,.detail-div{padding-left:16px;padding-right:16px;}
+  .err-table thead{display:none;}
+  .err-table,.err-table tbody,.err-table tr,.err-table td{display:block;width:100%;}
+  .err-table tr{border-bottom:1px solid var(--bdr);padding:10px 0;}
+  .err-table td{border:none;padding:4px 14px;}
+  .err-table td::before{content:attr(data-label);display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px;}
+}
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+<header class="header">
+  <div class="hdr-in">
+    <div class="logo" onclick="goHome()">
+      <img src="https://i.imgur.com/ED9xb0d.png" alt="Lotería de Santa Fe" style="height:38px;width:auto;display:block;">
+    </div>
+    <div class="hdr-right">
+      <h1>Centro de Ayuda · Portal PAC</h1>
+      <p id="subtitle">Encontrá la respuesta antes de llamar.</p>
+      <div class="breadcrumb" id="breadcrumb"></div>
+    </div>
+  </div>
+</header>
+
+<div class="search-bar">
+  <div class="search-bar-in">
+    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input class="si" id="si" type="text" placeholder="Buscar: licencia, CBU, titular, garantía, límite de venta..." autocomplete="off" spellcheck="false">
+    <div class="sdrop" id="sdrop"></div>
+  </div>
+</div>
+
+<div class="main">
+  <button class="back-btn" id="backBtn" onclick="goBack()">← Volver</button>
+  <div class="view active" id="view-home">
+    <div class="home-wrap">
+      <div class="home-hero"><h2>¿Qué necesitás resolver?</h2><p>Elegí una sección y encontrá la guía paso a paso.</p></div>
+      <div class="sec-label">Guías por sección</div>
+      <div class="cards-grid" id="homeGrid"></div>
+    </div>
+  </div>
+  <div class="view" id="view-section">
+    <div class="section-wrap">
+      <div class="section-header">
+        <div class="sec-hdr-left">
+          <div class="sec-icon-lg" id="secIcon"></div>
+          <div><div class="sec-title" id="secTitle"></div><div class="sec-desc" id="secDesc"></div></div>
+        </div>
+        <div class="prog-ind" id="progInd"></div>
+      </div>
+      <div class="tarjetas-list" id="tarjetasList"></div>
+    </div>
+  </div>
+  <div class="view" id="view-detail">
+    <div class="detail-wrap">
+      <div class="detail-card" id="detailCard"></div>
+      <div class="detail-nav" id="detailNav"></div>
+    </div>
+  </div>
+  <section class="faq-zone" id="faq">
+    <div class="faq-in">
+      <div class="faq-badge">Consultas Rápidas</div>
+      <h2>Preguntas Frecuentes</h2>
+      <p class="faq-sub">Las dudas más comunes, resueltas en menos de 30 segundos.</p>
+      <div class="faq-group">
+        <div class="faq-glabel">Licencias</div>
+        <div class="faq-grid">
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">La agencia de cobertura no puede pagar premios</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>El número de PV fue escrito pero no seleccionado en el segundo campo. Anular el trámite y completar ambos campos.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">No sé qué tipo de licencia pedir</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Abrí la sección Licencias y usá la tabla de tipos antes de ingresar al portal.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">Hice la licencia pero no aparece como activa</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>No se presionó el <strong>botón verde de confirmación</strong>. Si no figura como "Iniciado", repetir el proceso.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">¿Cuánto tiempo tengo por año para tomar licencias?</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>El límite es <strong>30 días acumulados por año calendario</strong>.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">¿Para el cambio de domicilio necesito licencia?</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>No. El trámite es el <strong>Cambio de Domicilio</strong> en la sección Trámites.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+        </div>
+      </div>
+      <div class="faq-group">
+        <div class="faq-glabel">Credenciales</div>
+        <div class="faq-grid">
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">No me llega el mail para recuperar la clave</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Revisar la carpeta de <strong>Spam.</strong> Si no está, el mail registrado puede ser diferente. Contactar ATC.</p><span class="bdg bdg-atc">Requiere soporte ATC</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">El nuevo titular no puede entrar al portal</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Las credenciales se gestionan dentro del proceso de cesión. Si no, contactar ATC.</p><span class="bdg bdg-atc">Requiere soporte ATC</span></div></div></div>
+        </div>
+      </div>
+      <div class="faq-group">
+        <div class="faq-glabel">Trámites</div>
+        <div class="faq-grid">
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">Quiero hacer el cambio de titular pero no sé cómo empezar</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>El cesionario debe realizar la <strong>Capacitación para Permisionarios</strong> y aprobar el examen. Sin completar ambos pasos el portal no permite avanzar.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">¿Cómo consulto el estado de un trámite?</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Usar el número de seguimiento del portal, o escribir a <a href="mailto:loteriaresponde@santafe.gov.ar">loteriaresponde@santafe.gov.ar</a></p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+        </div>
+      </div>
+      <div class="faq-group">
+        <div class="faq-glabel">Premios y UIF</div>
+        <div class="faq-grid">
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">El sistema no encuentra el ticket al cargar un premio</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Ingresar solo los dígitos del número de secuencia, sin espacios.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">Error en CUIT/CUIL al cargar el beneficiario</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Si el DNI tiene 7 dígitos, agregar un 0 antes. Ej: 20<strong>0</strong>61234561.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">Error "Control 15b — debe ingresar la característica"</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Teléfono completado sin código de área. Agregar: 342 para Santa Fe, 341 para Rosario.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">El sistema no acepta el CBU del ganador</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Se ingresó un CVU (Mercado Pago, Ualá, Prex). Solicitar el <strong>CBU bancario.</strong> Brubank y Naranja X son aceptados.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">¿Cuánto tiempo tiene el ganador para cobrar el Doble Chance?</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>La fecha de prescripción figura en el extracto en <a href="https://pac.loteriasantafe.gov.ar/otros-juegos/" target="_blank">pac.loteriasantafe.gov.ar/otros-juegos/ ↗</a></p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">Mandé la doc. del Doble Chance y no respondieron</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>Verificar: ¿se enviaron las 4 fotos en un solo mail a <strong>premios.loteria@santafe.gov.ar</strong> en día hábil? Si pasaron más de 48 hs, contactar ATC.</p><span class="bdg bdg-atc">Requiere soporte ATC</span></div></div></div>
+          <div class="faq-item"><div class="faq-q"><span class="faq-qt">No recuerdo el Código de Autorización de Pago</span><span class="faq-tog">+</span></div><div class="faq-a"><div class="faq-ai"><p>No puede recuperarse. Debe repetirse la carga completa del premio.</p><span class="bdg bdg-self">Autogestión</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="footer">
+  <div class="ft-in">
+    <div>
+      <div class="ft-logo"><div class="ft-logo-bar"></div><span class="ft-logo-tx">Lotería de Santa Fe</span></div>
+      <p>Centro de Ayuda del Portal PAC.<br>Elaborado por i2T Software Factory.<br>Contenido validado por el equipo ATC.</p>
+    </div>
+    <div>
+      <h4>Recursos y contacto</h4>
+      <ul class="ft-links">
+        <li><a href="https://pac.loteriasantafe.gov.ar/tramites-2/" target="_blank">pac.loteriasantafe.gov.ar/tramites-2/ ↗</a></li>
+        <li><a href="https://pac.loteriasantafe.gov.ar/descargas/" target="_blank">pac.loteriasantafe.gov.ar/descargas/ ↗</a></li>
+        <li><a href="https://pac.loteriasantafe.gov.ar/otros-juegos/" target="_blank">pac.loteriasantafe.gov.ar/otros-juegos/ ↗</a></li>
+        <li><a href="mailto:loteriaresponde@santafe.gov.ar">loteriaresponde@santafe.gov.ar</a></li>
+        <li><a href="mailto:premios.loteria@santafe.gov.ar">premios.loteria@santafe.gov.ar</a></li>
+        <li><a href="mailto:comercializacion@santafe.gov.ar">comercializacion@santafe.gov.ar</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot"><span>Versión 3.3 · Marzo 2026</span><span>CAS — Lotería de Santa Fe · i2T Software Factory</span></div>
+</footer>
+
+<script>
+var SECTIONS = [
+  {id:'licencias', icon:'🗓️', name:'Licencias y Asociaciones',  desc:'Vacaciones, ausencias e inactividad temporal'},
+  {id:'acceso',    icon:'🔑', name:'Acceso y Credenciales',      desc:'Login, recuperación de clave, datos de acceso'},
+  {id:'tramites',  icon:'📋', name:'Trámites Digitales',         desc:'Cambio de titular, domicilio, fallecimiento'},
+  {id:'premios',   icon:'🏆', name:'Premios y UIF',              desc:'Cobro, carga en portal, UIF, Doble Chance'},
+  {id:'cuentas',   icon:'📊', name:'Cuentas Corrientes',         desc:'Garantías, límites de venta y cuenta corriente'}
+];
+
+var CARDS = {
+  licencias:[
+    {id:'L-01',tema:'Qué es una licencia',resumen:'Mecanismo para declarar inactividad temporal del punto de venta',
+     contenido:'<p>La licencia es el mecanismo administrativo mediante el cual un permisionario declara un período de inactividad temporal de su punto de venta. Durante ese período, la terminal queda sin actividad de ventas, pero los premios generados antes del inicio de la licencia pueden seguir siendo cobrados.</p><p>Para garantizar esa continuidad, el sistema permite designar un Punto de Venta (PV) Asociado que actúa como agencia de cobertura.</p>',
+     alertas:[{t:'ok',l:'Límite anual',x:'30 días por año calendario. El cupo es acumulativo.'}]},
+    {id:'L-02',tema:'Tipos de licencia',resumen:'Ordinaria, incapacidad transitoria y baja voluntaria',
+     contenido:'<p>Existen tres tipos de licencia disponibles en el portal:</p><ul><li><strong>Ordinaria:</strong> para vacaciones o ausencia planificada.</li><li><strong>Incapacidad transitoria:</strong> para enfermedad o impedimento físico temporal.</li><li><strong>Baja voluntaria:</strong> cierre definitivo del permiso.</li></ul>',
+     alertas:[{t:'warn',l:'Mudanza ≠ Licencia',x:'Si el agenciero se muda, corresponde el trámite de Cambio de Domicilio, que ya contempla el cierre transitorio.'}]},
+    {id:'L-03',tema:'Cómo solicitar una licencia',resumen:'Procedimiento paso a paso para licencia ordinaria',
+     contenido:'<p>Procedimiento completo para solicitar una licencia ordinaria en el Portal PAC.</p>',
+     alertas:[{t:'warn',l:'Error más común',x:'Escribir el número de agencia sin seleccionarlo en el desplegable. La licencia queda incompleta.'},{t:'tip',l:'Tip',x:'Coordinar previamente con la agencia de cobertura para confirmar que el número es correcto.'}],
+     pasos:['<strong>Acceder al módulo:</strong> Portal PAC → Menú principal → Trámites → Licencias → Nueva solicitud.','<strong>Seleccionar el tipo de licencia.</strong> Este campo NO es editable una vez confirmado.','<strong>Seleccionar las fechas</strong> usando el selector de calendario.','<strong>Asociar el Punto de Venta de cobertura:</strong> Campo 1: escribir el número de agencia (4 dígitos). Campo 2: seleccionar la agencia en el desplegable contiguo. Ambos son obligatorios.','<strong>Confirmar</strong> con el botón verde. Sin este paso la licencia NO queda registrada.'],
+     ruta:'Menú principal → Trámites → Licencias → Nueva solicitud'},
+    {id:'L-04',tema:'Qué pasa durante la licencia',resumen:'Comportamiento de la terminal y reactivación automática',
+     contenido:'<p>Durante el período de licencia activa:</p><ul><li>La terminal <strong>NO</strong> registra ventas nuevas.</li><li>Los tickets emitidos antes de la fecha de inicio pueden cobrarse en el PV asociado.</li><li>Al vencer la fecha de fin, la agencia se reactiva automáticamente.</li></ul>'},
+    {id:'L-05',tema:'Errores frecuentes en licencias',resumen:'Problemas comunes y cómo resolverlos',
+     contenido:'<p>Los tres errores más frecuentes al gestionar licencias en el portal.</p>',
+     errores:[['La agencia de cobertura no puede pagar premios','Número escrito pero no seleccionado en el desplegable','Anular el trámite y completar ambos campos'],['Tipo de licencia incorrecto','Descripciones del portal poco claras','Consultar la tabla de tipos ANTES de ingresar'],['La licencia no aparece como activa','No se presionó el botón verde','Repetir el proceso presionando el botón verde']]}
+  ],
+  acceso:[
+    {id:'A-01',tema:'Datos necesarios para operar',resumen:'Información que necesitás tener a mano antes de cualquier gestión',
+     contenido:'<p>Para gestionar el acceso al Portal PAC tener disponibles:</p><ul><li><strong>Número de permiso</strong></li><li><strong>CUIT</strong></li><li><strong>Número de agencia</strong> (4 dígitos)</li><li><strong>Número de sub-agencia</strong></li></ul>'},
+    {id:'A-02',tema:'Recuperar contraseña',resumen:'Cómo restablecer tu clave de acceso al Portal PAC',
+     contenido:'<p>Si el correo de recuperación no llega, verificar la carpeta de Spam. Si no está, el mail registrado puede ser diferente: contactar a ATC para actualizarlo.</p>',
+     alertas:[{t:'info',l:'Antes de empezar',x:'Tener a mano: número de permiso, CUIT, número de agencia y número de sub-agencia.'}],
+     pasos:['Ingresar a la pantalla de login del Portal PAC.','Hacer clic en <strong>"¿Olvidaste tu contraseña?"</strong>','Completar: permiso, CUIT, número de agencia y número de sub-agencia.','El sistema enviará un correo de recuperación.','Revisar bandeja de entrada <strong>y carpeta de Spam.</strong>','Hacer clic en el enlace y establecer la nueva contraseña.'],
+     ruta:'Login → ¿Olvidaste tu contraseña?',contacto:'ATC (Atención al Cliente)'},
+    {id:'A-03',tema:'Credenciales en cambio de titularidad',resumen:'Cómo se gestionan las credenciales del nuevo titular',
+     contenido:'<p>Las credenciales del nuevo titular se gestionan <strong>dentro del proceso de Cambio de Titularidad</strong>. El cedente inicia el trámite con sus credenciales y durante la carga consigna el correo del nuevo titular.</p>'}
+  ],
+  tramites:[
+    {id:'T-01',tema:'Reglas generales para todos los trámites',resumen:'Leer antes de iniciar cualquier trámite de titularidad',
+     contenido:'<p>Principios que aplican a todos los trámites:</p><ul><li><strong>La capacitación y el examen van primero.</strong></li><li><strong>El portal es el inicio, no el cierre.</strong> Todos los trámites continúan con instancias presenciales.</li><li><strong>Todos los trámites son gratuitos.</strong> La compraventa de agencias está prohibida.</li></ul>',
+     alertas:[{t:'warn',l:'Prohibido',x:'La compraventa de agencias está PROHIBIDA y es causal de revocación.'},{t:'warn',l:'Requisito previo',x:'Sin realizar la Capacitación para Permisionarios y aprobar el examen, ningún trámite puede avanzar.'}],
+     contacto:'loteriaresponde@santafe.gov.ar'},
+    {id:'T-02',tema:'Cambio de Titularidad',resumen:'Transferir el permiso de explotación a un nuevo titular',
+     contenido:'<p>El cesionario debe haber realizado la Capacitación para Permisionarios y aprobado el examen ANTES de iniciar cualquier gestión en el portal.</p>',
+     alertas:[{t:'warn',l:'Atención',x:'Este trámite no puede iniciarse hasta que el cesionario haya aprobado el examen.'}],
+     pasos:['<strong>Paso previo:</strong> El cesionario realiza la Capacitación y aprueba el examen.','<strong>Inicio en el portal:</strong> El cedente ingresa → Guía e Inicio de Trámites → Iniciar Nuevo.','<strong>Entrevista presencial</strong> con la Dirección General de Comercialización.','<strong>Preautorización o rechazo.</strong>','<strong>Carga de documentación</strong> en el portal y presentación de originales en sede.','<strong>Resolución definitiva</strong> de Vicepresidencia Ejecutiva.','<strong>Alta del nuevo titular</strong> desde el primer día hábil del mes siguiente.'],
+     ruta:'Guía e Inicio de Trámites → Iniciar Nuevo',ref:'pac.loteriasantafe.gov.ar/tramites-2/'},
+    {id:'T-03',tema:'Cambio de Domicilio',resumen:'Mudar la agencia a una nueva dirección física',
+     contenido:'<p>Traslado de la agencia a una nueva dirección física. Contempla el cierre transitorio del local.</p>',
+     alertas:[{t:'tip',l:'Tip',x:'La inspección favorable no cierra el trámite. La CAS realiza además una evaluación comercial integral.'}],
+     pasos:['<strong>Carga en el Portal PAC</strong> con domicilio propuesto, fotos del nuevo local y Plan Estratégico.','<strong>Inspección presencial.</strong>','<strong>Documentación</strong> tras la aceptación.','<strong>Resolución de Vicepresidencia Ejecutiva.</strong>','<strong>Alta y traslado</strong> en máximo 10 días hábiles.','<strong>Obligación posterior:</strong> enviar foto del local anterior a <a href="mailto:comercializacion@santafe.gov.ar">comercializacion@santafe.gov.ar</a>'],
+     contacto:'comercializacion@santafe.gov.ar',ref:'pac.loteriasantafe.gov.ar/tramites-2/'},
+    {id:'T-04',tema:'Fallecimiento o Incapacidad del Titular',resumen:'Continuar el permiso ante fallecimiento o incapacidad',
+     contenido:'<p>Trámite para continuar la explotación del permiso cuando el titular fallece o no puede continuar por incapacidad.</p>',
+     alertas:[{t:'warn',l:'Atención',x:'Requiere instancias presenciales y documentación certificada. Ante cualquier duda contactar a ATC antes de iniciar.'}],
+     pasos:['Portal PAC → Guía e Inicio de Trámites → Iniciar Nuevo → completar formulario de Solicitud por fallecimiento o incapacidad.','Entrevista presencial con la Dirección General de Comercialización.','Preautorización: si es aceptada se recibe el proveído con instrucciones.','Cargar documentación en el portal y presentar originales en sede.','Resolución definitiva.','Firma del comodato + alta desde el primer día hábil del mes siguiente.'],
+     ruta:'Guía e Inicio de Trámites → Iniciar Nuevo',contacto:'ATC (Atención al Cliente)',ref:'pac.loteriasantafe.gov.ar/tramites-2/'}
+  ],
+  premios:[
+    {id:'P-01',tema:'Umbral UIF — Identificación obligatoria',resumen:'Desde enero 2026, premios ≥ $5.000.000 requieren identificación',
+     contenido:'<p>Desde enero de 2026 el umbral UIF es de <strong>$5.000.000</strong>. Aplica a: Quini 6, Lotería Tradicional, Lotería de Córdoba, Brinco, Loto Plus y Loto 5.</p>',
+     alertas:[{t:'ok',l:'Umbral vigente desde enero 2026',x:'$5.000.000 (cinco millones de pesos).'}]},
+    {id:'P-02',tema:'Premios Mayores — Cobro en sede',resumen:'Premios superiores a $5.000.000: cobro presencial del apostador',
+     contenido:'<p>Para premios superiores a $5.000.000, el trámite lo realiza el apostador ganador en forma <strong>personal y directa</strong>.</p><p><strong>Documentación:</strong></p><ul><li>Ticket original ganador</li><li>DNI del apostador</li><li>Constancia de CUIL</li><li>CBU de cuenta bancaria (no se aceptan CVU de Mercado Pago, Ualá ni Prex; sí Brubank y Naranja X)</li></ul>',
+     alertas:[{t:'tip',l:'CBU vs CVU',x:'Ambos tienen 22 dígitos. Indicarle al ganador que verifique en su banco antes de presentarse en sede.'}],
+     contacto:'Santa Fe: (0342) 481-5660 int. 39638 — premios.loteria@santafe.gov.ar | Rosario: (0341) 446-7254 int. 47352'},
+    {id:'P-03',tema:'Carga de premios en el Portal PAC',resumen:'Módulo Beneficiario de Premios: paso a paso y errores frecuentes',
+     contenido:'<p>El módulo se llama <strong>BENEFICIARIO DE PREMIOS</strong>. Usar <strong>Google Chrome</strong>.</p>',
+     alertas:[{t:'warn',l:'Atención',x:'ANOTAR el Código de Autorización de Pago ANTES de cerrar la pantalla. No puede recuperarse.'},{t:'info',l:'Navegador',x:'Usar Google Chrome.'}],
+     pasos:['Portal PAC → seleccionar <strong>BENEFICIARIO DE PREMIOS.</strong>','Ingresar número de ticket → <strong>BUSCAR TICKET.</strong>','Verificar datos → <strong>SIGUIENTE.</strong>','Completar datos del beneficiario: CUIT/CUIL sin espacios. DNI de 7 dígitos: agregar un 0 antes. Teléfono con código de área.','Datos del cobrador: solo si el ganador designa a otra persona.','Revisar resumen → <strong>CONFIRMAR PAGO.</strong>','Anotar el <strong>Código de Autorización de Pago</strong> (4 dígitos) antes de cerrar la pantalla.'],
+     errores:[['El sistema no encuentra el ticket','Número con espacios o incorrecto','Solo dígitos, sin espacios'],['Error en CUIT/CUIL','DNI de 7 dígitos sin el 0','Agregar el 0 antes'],['Error "Control 15b"','Teléfono sin código de área','Agregar 342 (Sta. Fe) o 341 (Rosario)'],['Sistema no acepta el CBU','Se ingresó un CVU','Solicitar CBU bancario'],['No recuerda el Código de Autorización','Se cerró la pantalla','Repetir la carga completa del premio']],
+     ruta:'Portal PAC → BENEFICIARIO DE PREMIOS'},
+    {id:'P-04',tema:'Código de Autorización de Pago',resumen:'El código de 4 dígitos para efectivizar el pago en terminal',
+     contenido:'<p>Número de <strong>4 dígitos</strong> generado al confirmar el pago. Se ingresa en la terminal para efectivizar el cobro al ganador.</p>',
+     alertas:[{t:'warn',l:'No recuperable',x:'Si se cierra la pantalla sin anotarlo, debe repetirse la carga completa del premio.'}]},
+    {id:'P-05',tema:'Premio Doble Chance',resumen:'Gestión 100% por correo electrónico — sin portal ni presencialidad',
+     contenido:'<p>Lo gestiona el <strong>Agente Oficial</strong> por mail. Enviar foto DNI (frente y dorso), foto del ticket y foto del extracto del sorteo en un único correo a <a href="mailto:premios.loteria@santafe.gov.ar">premios.loteria@santafe.gov.ar</a> en días hábiles. Acreditación en 48 horas hábiles.</p>',
+     alertas:[{t:'warn',l:'Verificar prescripción',x:'Verificar la fecha de prescripción en el extracto antes de enviar.'}],
+     contacto:'premios.loteria@santafe.gov.ar',ref:'pac.loteriasantafe.gov.ar/otros-juegos/'}
+  ],
+  cuentas:[
+    {id:'CC-01',tema:'Qué es una garantía',resumen:'Respaldo económico exigido al agenciero para operar',
+     contenido:'<p>La garantía es el respaldo económico que la CAS – Lotería de Santa Fe exige a cada agenciero como condición para operar. Funciona como un depósito de seguridad que cubre las obligaciones comerciales del punto de venta (ventas pendientes de rendición).</p><p>Cada agencia tiene dos valores clave:</p><ul><li><strong>Garantía Mínima:</strong> calculada por el sistema según el promedio de ventas.</li><li><strong>Garantía Vigente:</strong> la constituida por el agenciero. Debe ser igual o superior a la mínima para operar sin restricciones.</li></ul>',
+     alertas:[{t:'warn',l:'Atención',x:'Si la garantía vigente es inferior a la mínima, la agencia puede tener restricciones o bloqueos en la terminal.'}]},
+    {id:'CC-02',tema:'Qué es el límite de venta diario',resumen:'Tope máximo de ventas que una agencia puede registrar por día',
+     contenido:'<p>El límite de venta diario es el tope máximo de ventas que una agencia puede registrar por día. Lo establece Lotería según la garantía vigente y el historial comercial del punto de venta.</p><p>Cuando se alcanza el límite, la terminal deja de registrar apuestas hasta el día siguiente.</p><p>En la pantalla de Garantía del Portal PAC podés ver:</p><ul><li><strong>Límite de venta diario</strong></li><li><strong>Margen operativo de excepción</strong></li><li><strong>Máximo para actualización</strong></li></ul>',
+     alertas:[{t:'tip',l:'Tip',x:'Si se queda sin margen antes del cierre del día, puede solicitar un aumento del límite. Ver tarjeta CC-04.'}]},
+    {id:'CC-03',tema:'Cómo consultar el monto mínimo de garantía',resumen:'Paso a paso desde el Portal PAC para ver tu garantía mínima',
+     contenido:'<p>Consultá el monto mínimo de garantía desde el Portal PAC accediendo a <strong>MI RED → GARANTÍA VIGENTE</strong>.</p><p>La pantalla muestra: Promedio mensual de ventas últ. 3 meses, Garantía Mínima, Garantía Vigente, Promedio diario de venta, Límite de crédito, Límite de venta diario, Margen operativo de excepción y Máximo para actualización.</p>',
+     alertas:[{t:'tip',l:'Tip',x:'Si la Vigente es menor que la Mínima, contactá a Cuentas Corrientes para regularizar la situación.'}],
+     pasos:['Ingresar al Portal PAC desde pac.loteriasantafe.gov.ar','Hacer clic en <strong>INICIAR SESIÓN</strong> (esquina superior derecha).','Ingresar con usuario y clave.','Hacer clic en <strong>MI RED</strong> (menú de íconos del panel principal).','Hacer clic en <strong>GARANTÍA VIGENTE</strong> (grilla del panel MI RED).','Tomar nota del monto informado como <strong>GARANTÍA MÍNIMA</strong>.'],
+     ruta:'Portal PAC → MI RED → GARANTÍA VIGENTE'},
+    {id:'CC-04',tema:'Cómo aumentar el límite de venta diario',resumen:'Pasos para solicitar un aumento del límite de venta diario',
+     contenido:'<p>Esta guía está siendo preparada por el equipo de Cuentas Corrientes.</p>',
+     alertas:[{t:'info',l:'Contenido en preparación',x:'El paso a paso para solicitar el aumento del límite de venta diario estará disponible próximamente. Si tenés esta consulta ahora, contactá directamente al área de Cuentas Corrientes.'}]}
+  ]
+};
+
+// ── NAVIGATION ────────────────────────────────────────
+var state = {view:'home', section:null, cardId:null};
+var navHistory = [];
+
+function getSec(sid){
+  for(var i=0;i<SECTIONS.length;i++){if(SECTIONS[i].id===sid)return SECTIONS[i];}
+  return null;
+}
+function findSec(cid){
+  var keys=Object.keys(CARDS);
+  for(var i=0;i<keys.length;i++){
+    var arr=CARDS[keys[i]];
+    for(var j=0;j<arr.length;j++){if(arr[j].id===cid)return keys[i];}
+  }
+  return null;
+}
+function getCard(sid,cid){
+  var arr=CARDS[sid]||[];
+  for(var i=0;i<arr.length;i++){if(arr[i].id===cid)return arr[i];}
+  return null;
+}
+
+function goHome(){navHistory=[];setState({view:'home',section:null,cardId:null});}
+function goSection(sid){navHistory.push({view:state.view,section:state.section,cardId:state.cardId});setState({view:'section',section:sid,cardId:null});}
+function goDetail(cid){navHistory.push({view:state.view,section:state.section,cardId:state.cardId});setState({view:'detail',section:findSec(cid),cardId:cid});}
+function goBack(){if(navHistory.length)setState(navHistory.pop());}
+
+function setState(s){
+  state=s; render();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function render(){
+  var views=['home','section','detail'];
+  for(var i=0;i<views.length;i++){
+    var el=document.getElementById('view-'+views[i]);
+    if(el) el.className='view'+(state.view===views[i]?' active':'');
+  }
+  var bb=document.getElementById('backBtn');
+  if(bb){
+    if(state.view==='home'){bb.style.display='none';}
+    else{bb.style.display='flex';bb.textContent=state.view==='detail'?'← Volver a la sección':'← Volver al inicio';}
+  }
+  updateBC();
+  var faq=document.getElementById('faq');
+  if(faq) faq.style.display=state.view==='home'?'':'none';
+  if(state.view==='section') renderSection();
+  if(state.view==='detail')  renderDetail();
+}
+
+function updateBC(){
+  var bc=document.getElementById('breadcrumb'),sub=document.getElementById('subtitle');
+  if(!bc||!sub) return;
+  if(state.view==='home'){bc.className='breadcrumb';sub.style.display='';return;}
+  sub.style.display='none';bc.className='breadcrumb show';
+  var sec=getSec(state.section);
+  if(!sec){bc.innerHTML='<span class="bc-link" onclick="goHome()">Inicio</span>';return;}
+  if(state.view==='section'){
+    bc.innerHTML='<span class="bc-link" onclick="goHome()">Inicio</span><span class="bc-sep">›</span><span class="bc-current">'+sec.name+'</span>';
+  } else {
+    var card=getCard(state.section,state.cardId);
+    bc.innerHTML='<span class="bc-link" onclick="goHome()">Inicio</span><span class="bc-sep">›</span><span class="bc-link" onclick="goSection(\''+state.section+'\')">'+sec.name+'</span><span class="bc-sep">›</span><span class="bc-current">'+(card?card.tema:'')+'</span>';
+  }
+}
+
+function renderHome(){
+  var grid=document.getElementById('homeGrid');
+  if(!grid) return;
+  var html='';
+  for(var i=0;i<SECTIONS.length;i++){
+    var s=SECTIONS[i];
+    var cnt=(CARDS[s.id]||[]).length;
+    html+='<div class="sec-card" onclick="goSection(\''+s.id+'\')">'+
+      '<div class="sec-card-top"><div class="sec-card-icon">'+s.icon+'</div><div class="sec-card-count">'+cnt+' tema'+(cnt!==1?'s':'')+'</div></div>'+
+      '<h3>'+s.name+'</h3><p>'+s.desc+'</p>'+
+      '<div class="sec-card-arrow">Ver guías →</div></div>';
+  }
+  grid.innerHTML=html;
+}
+
+function renderSection(){
+  var sec=getSec(state.section);
+  if(!sec) return;
+  var cards=CARDS[state.section]||[];
+  var si=document.getElementById('secIcon');if(si)si.textContent=sec.icon;
+  var st=document.getElementById('secTitle');if(st)st.textContent=sec.name;
+  var sd=document.getElementById('secDesc');if(sd)sd.textContent=sec.desc;
+  var sp=document.getElementById('progInd');if(sp)sp.textContent=cards.length+' tema'+(cards.length!==1?'s':'');
+  var list=document.getElementById('tarjetasList');
+  if(!list) return;
+  var html='';
+  for(var i=0;i<cards.length;i++){
+    var c=cards[i];
+    var dots='';
+    if(c.pasos)   dots+='<span class="dot dot-steps"></span>';
+    if(c.errores) dots+='<span class="dot dot-errors"></span>';
+    html+='<div class="tarjeta-item" onclick="goDetail(\''+c.id+'\')">'+
+      '<span class="tarjeta-id">'+c.id+'</span>'+
+      '<div class="tarjeta-info"><div class="tarjeta-name">'+c.tema+'</div><div class="tarjeta-hint">'+c.resumen+'</div></div>'+
+      (dots?'<div class="tarjeta-dots">'+dots+'</div>':'')+
+      '<span class="t-chev">›</span></div>';
+  }
+  list.innerHTML=html;
+}
+
+function renderDetail(){
+  var cards=CARDS[state.section]||[];
+  var idx=-1;
+  for(var i=0;i<cards.length;i++){if(cards[i].id===state.cardId){idx=i;break;}}
+  if(idx===-1) return;
+  var card=cards[idx];
+  var sec=getSec(state.section);
+  var icons={warn:'⚠️',tip:'💡',info:'ℹ️',ok:'✅'};
+  var alerts='';
+  if(card.alertas){
+    for(var i=0;i<card.alertas.length;i++){
+      var a=card.alertas[i];
+      alerts+='<div class="alert-blk '+a.t+'"><span class="alert-ico">'+icons[a.t]+'</span>'+
+        '<div><div class="alert-lbl">'+a.l+'</div><div class="alert-txt">'+a.x+'</div></div></div>';
+    }
+  }
+  var steps='';
+  if(card.pasos){
+    steps='<div class="steps-sec"><div class="steps-ttl">👣 Paso a paso</div>';
+    for(var i=0;i<card.pasos.length;i++){
+      steps+='<div class="step-row"><div class="step-num">'+(i+1)+'</div><div class="step-body">'+card.pasos[i]+'</div></div>';
+    }
+    steps+='</div>';
+  }
+  var errs='';
+  if(card.errores){
+    errs='<div class="errors-sec"><div class="errors-ttl">⚠️ Errores frecuentes</div>'+
+      '<table class="err-table"><thead><tr><th>Problema</th><th>Causa</th><th>Solución</th></tr></thead><tbody>';
+    for(var i=0;i<card.errores.length;i++){
+      var r=card.errores[i];
+      errs+='<tr><td data-label="Problema">'+r[0]+'</td><td data-label="Causa">'+r[1]+'</td><td data-label="Solución">'+r[2]+'</td></tr>';
+    }
+    errs+='</tbody></table></div>';
+  }
+  var meta='',metas=[];
+  if(card.ruta)     metas.push(['Ruta',card.ruta]);
+  if(card.contacto) metas.push(['Contacto','<a href="mailto:'+card.contacto+'">'+card.contacto+'</a>']);
+  if(card.ref)      metas.push(['Referencia','<a href="https://'+card.ref+'" target="_blank">'+card.ref+' ↗</a>']);
+  if(metas.length){
+    meta='<div class="detail-meta">';
+    for(var i=0;i<metas.length;i++){
+      meta+='<div class="meta-row"><span class="meta-lbl">'+metas[i][0]+'</span><span class="meta-val">'+metas[i][1]+'</span></div>';
+    }
+    meta+='</div>';
+  }
+  var dc=document.getElementById('detailCard');
+  if(dc) dc.innerHTML=
+    '<div class="detail-head"><div class="detail-id">'+card.id+'</div>'+
+    '<div class="detail-title">'+card.tema+'</div>'+
+    '<div class="detail-spath">'+sec.icon+' '+sec.name+'</div></div>'+
+    '<div class="detail-div"></div>'+alerts+
+    '<div class="detail-body">'+(card.contenido||'')+'</div>'+steps+errs+meta;
+  var prev=idx>0?cards[idx-1]:null;
+  var next=idx<cards.length-1?cards[idx+1]:null;
+  var dn=document.getElementById('detailNav');
+  if(dn) dn.innerHTML=
+    '<div class="dnav-btn'+(prev?'':' disabled')+'"'+(prev?' onclick="goDetail(\''+prev.id+'\')"':'')+'>'+
+      '<div class="dnav-dir">← Anterior</div><div class="dnav-title">'+(prev?prev.tema:'—')+'</div></div>'+
+    '<div class="dnav-btn next'+(next?'':' disabled')+'"'+(next?' onclick="goDetail(\''+next.id+'\')"':'')+'>'+
+      '<div class="dnav-dir">Siguiente →</div><div class="dnav-title">'+(next?next.tema:'—')+'</div></div>';
+}
+
+// ── SEARCH ────────────────────────────────────────────
+var SUGGESTIONS=['licencia','CBU','titular','doble chance','contraseña','UIF','garantía','límite venta','MI RED'];
+var activeI=-1, debT;
+
+function normStr(s){
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/,' ').trim();
+}
+function stripHtml(v){
+  if(!v) return '';
+  if(Array.isArray(v)){
+    var r='';
+    for(var i=0;i<v.length;i++) r+=(Array.isArray(v[i])?v[i].join(' '):String(v[i]))+' ';
+    return r;
+  }
+  return String(v).replace(/<[^>]+>/g,' ').replace(/\s+/,' ').trim();
+}
+
+// Build search index after data is ready
+var IDX=[];
+function buildIdx(){
+  IDX=[];
+  var keys=Object.keys(CARDS);
+  for(var k=0;k<keys.length;k++){
+    var sid=keys[k];
+    var sec=getSec(sid);
+    if(!sec) continue;
+    var arr=CARDS[sid];
+    for(var i=0;i<arr.length;i++){
+      var c=arr[i];
+      var alertTxt='';
+      if(c.alertas){for(var j=0;j<c.alertas.length;j++) alertTxt+=c.alertas[j].l+' '+c.alertas[j].x+' ';}
+      IDX.push({
+        id:c.id, sid:sid, sname:sec.name, sicon:sec.icon, tema:c.tema, resumen:c.resumen,
+        fields:[
+          {w:8, t:c.id},
+          {w:10,t:c.tema},
+          {w:5, t:c.resumen},
+          {w:4, t:alertTxt},
+          {w:3, t:stripHtml(c.pasos)},
+          {w:3, t:stripHtml(c.errores)},
+          {w:2, t:stripHtml(c.contenido)},
+          {w:1, t:sec.name}
+        ]
+      });
+    }
+  }
+}
+
+function scoreEntry(e,terms){
+  var total=0;
+  for(var t=0;t<terms.length;t++){
+    var nt=normStr(terms[t]);
+    for(var f=0;f<e.fields.length;f++){
+      var nf=normStr(e.fields[f].t);
+      var w=e.fields[f].w;
+      if(nf===nt)              total+=w*3;
+      else if(nf.indexOf(nt)===0) total+=w*2;
+      else if(nf.indexOf(nt)>-1)  total+=w;
+    }
+    if(normStr(e.tema).indexOf(nt)>-1) total+=5;
+  }
+  return total;
+}
+
+function hlText(text,terms){
+  var out=text||'';
+  for(var i=0;i<terms.length;i++){
+    if(terms[i].length<2) continue;
+    var re=new RegExp('('+terms[i].replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    out=out.replace(re,'<mark>$1</mark>');
+  }
+  return out;
+}
+
+function truncStr(s,n){return(!s||s.length<=n)?s:s.slice(0,n).replace(/\s\S*$/,'')+'...';}
+
+function doSearch(raw){
+  var terms=[];
+  var parts=raw.trim().split(/\s+/);
+  for(var i=0;i<parts.length;i++){if(parts[i].length>=2) terms.push(parts[i]);}
+  if(!terms.length) return [];
+  var results=[];
+  for(var i=0;i<IDX.length;i++){
+    var s=scoreEntry(IDX[i],terms);
+    if(s>0) results.push({e:IDX[i],s:s});
+  }
+  results.sort(function(a,b){return b.s-a.s;});
+  var out=[];
+  for(var i=0;i<results.length;i++) out.push(results[i].e);
+  return out;
+}
+
+function renderDrop(results,terms,raw){
+  var sd=document.getElementById('sdrop');
+  if(!sd) return;
+  if(!results.length){
+    var suggs='';
+    for(var i=0;i<SUGGESTIONS.length;i++){
+      suggs+='<span class="sr-sugg" onclick="fireSearch(\''+SUGGESTIONS[i]+'\')">'+SUGGESTIONS[i]+'</span>';
+    }
+    sd.innerHTML='<div class="sr-empty"><div class="sr-empty-ico">🔍</div>'+
+      '<div class="sr-empty-txt">Sin resultados para "'+raw+'"</div>'+
+      '<div class="sr-empty-hint">Probá con: '+suggs+'</div></div>';
+    sd.className='sdrop open';
+    return;
+  }
+  var shown=results.length>8?results.slice(0,8):results;
+  var extra=results.length-shown.length;
+  var html='<div class="sdrop-hdr">'+results.length+' resultado'+(results.length!==1?'s':'')+' para "<strong>'+raw+'</strong>"</div>';
+  for(var i=0;i<shown.length;i++){
+    var r=shown[i];
+    html+='<div class="sr" data-idx="'+i+'" data-id="'+r.id+'" onclick="pickResult(\''+r.id+'\')">'+
+      '<span class="sr-icon">'+r.sicon+'</span>'+
+      '<div class="sr-body">'+
+        '<div class="sr-top"><span class="sr-id">'+r.id+'</span><span class="sr-sname">'+r.sname+'</span></div>'+
+        '<div class="sr-tema">'+hlText(r.tema,terms)+'</div>'+
+        '<div class="sr-res">'+hlText(truncStr(r.resumen,80),terms)+'</div>'+
+      '</div></div>';
+  }
+  if(extra>0) html+='<div class="sr-more">+ '+extra+' resultado'+(extra!==1?'s':'')+' más</div>';
+  sd.innerHTML=html;
+  sd.className='sdrop open';
+  activeI=-1;
+}
+
+function pickResult(id){
+  var si=document.getElementById('si'),sd=document.getElementById('sdrop');
+  if(si) si.value='';
+  if(sd) sd.className='sdrop';
+  activeI=-1;
+  setTimeout(function(){goDetail(id);},10);
+}
+
+function fireSearch(val){
+  var si=document.getElementById('si');
+  if(si) si.value=val;
+  var terms=[];
+  var parts=val.trim().split(/\s+/);
+  for(var i=0;i<parts.length;i++){if(parts[i].length>=2) terms.push(parts[i]);}
+  renderDrop(doSearch(val),terms,val);
+}
+
+function initSearch(){
+  var si=document.getElementById('si');
+  var sd=document.getElementById('sdrop');
+  if(!si||!sd) return;
+
+  si.addEventListener('input',function(){
+    clearTimeout(debT);
+    var raw=si.value.trim();
+    if(raw.length<2){sd.className='sdrop';activeI=-1;return;}
+    debT=setTimeout(function(){
+      var terms=[];
+      var parts=raw.toLowerCase().split(/\s+/);
+      for(var i=0;i<parts.length;i++){if(parts[i].length>=2) terms.push(parts[i]);}
+      renderDrop(doSearch(raw),terms,raw);
+    },200);
+  });
+
+  si.addEventListener('keydown',function(e){
+    var items=sd.querySelectorAll('.sr[data-id]');
+    if(!items.length) return;
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      if(activeI<items.length-1) activeI++;
+      for(var i=0;i<items.length;i++) items[i].className='sr'+(i===activeI?' active':'');
+    } else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      if(activeI>0) activeI--;
+      for(var i=0;i<items.length;i++) items[i].className='sr'+(i===activeI?' active':'');
+    } else if(e.key==='Enter'){
+      e.preventDefault();
+      var target=activeI>=0?items[activeI]:items[0];
+      if(target) pickResult(target.getAttribute('data-id'));
+    } else if(e.key==='Escape'){
+      si.value='';sd.className='sdrop';activeI=-1;
+    }
+  });
+
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('.search-bar-in')){sd.className='sdrop';activeI=-1;}
+  });
+}
+
+// ── FAQ ACCORDION ─────────────────────────────────────
+function initFaq(){
+  var items=document.querySelectorAll('.faq-item');
+  for(var i=0;i<items.length;i++){
+    (function(item){
+      var q=item.querySelector('.faq-q');
+      if(!q) return;
+      q.addEventListener('click',function(){
+        var isOpen=item.className.indexOf('open')>-1;
+        var all=document.querySelectorAll('.faq-item');
+        for(var j=0;j<all.length;j++){
+          all[j].className='faq-item';
+          var a=all[j].querySelector('.faq-a');
+          if(a) a.style.maxHeight=null;
+        }
+        if(!isOpen){
+          item.className='faq-item open';
+          var a=item.querySelector('.faq-a');
+          if(a) a.style.maxHeight=a.scrollHeight+'px';
+        }
+      });
+    })(items[i]);
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────
+function init(){
+  buildIdx();
+  renderHome();
+  render();
+  initSearch();
+  initFaq();
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
